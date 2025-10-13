@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Analytics - Smart Farm Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+body { font-family: 'Inter', sans-serif; background:#f8f9fa; color:#2b2d42; margin:0; }
+.navbar { background:#fff; padding:1rem 2rem; box-shadow:0 2px 10px rgba(0,0,0,0.1); display:flex; justify-content:space-between; align-items:center; position:sticky; top:0; z-index:1000; }
+.brand { font-weight:700; color:#2d6a4f; text-decoration:none; font-size:1.5rem; display:flex; align-items:center; gap:0.5rem; }
+.nav-links { display:flex; gap:2rem; list-style:none; }
+.nav-links a { text-decoration:none; color:#2b2d42; font-weight:500; position:relative; }
+.nav-links a.active::after { content:''; position:absolute; left:0; bottom:-5px; width:100%; height:2px; background:#52b788; }
+.page-header { background:linear-gradient(135deg,#2d6a4f,#52b788); color:#fff; padding:3rem 2rem; text-align:center; }
+.page-header h1 { font-size:2.5rem; margin-bottom:0.5rem; }
+.page-header p { opacity:0.95; }
+.container { max-width:1400px; margin:0 auto; padding:3rem 2rem; }
+.metrics-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:1.5rem; margin-bottom:3rem; }
+.metric-card { background:#fff; padding:1.75rem; border-radius:12px; box-shadow:0 2px 10px rgba(0,0,0,0.1); display:flex; align-items:center; gap:1.25rem; transition:transform 0.3s; }
+.metric-card:hover { transform:translateY(-5px); }
+.metric-icon { width:60px; height:60px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.75rem; }
+.metric-icon.green { background:rgba(82,183,136,0.15); color:#52b788; }
+.metric-icon.blue { background:rgba(52,152,219,0.15); color:#3498db; }
+.metric-icon.orange { background:rgba(244,162,97,0.15); color:#f4a261; }
+.metric-icon.red { background:rgba(231,111,81,0.15); color:#e76f51; }
+.metric-info h3 { font-size:1.8rem; font-weight:700; margin-bottom:0.25rem; }
+.metric-info p { font-size:0.9rem; color:#6c757d; }
+button { cursor:pointer; padding:5px 10px; border:none; border-radius:6px; color:white; background:#52b788; }
+.chart-container { background:#fff; padding:1.5rem; border-radius:12px; box-shadow:0 2px 10px rgba(0,0,0,0.1); margin-bottom:2rem; }
+</style>
+</head>
+<body>
+
+<nav class="navbar">
+    <a href="/" class="brand"><i class="fas fa-leaf"></i> Smart Farm</a>
+    <ul class="nav-links">
+        <li><a href="/">Home</a></li>
+        <li><a href="/crops">Crops</a></li>
+        <li><a href="/analytics" class="active">Analytics</a></li>
+        <li><a href="/settings">Settings</a></li>
+    </ul>
+</nav>
+
+<div class="page-header">
+    <h1>Analytics Dashboard</h1>
+    <p>Real-time insights from your farm</p>
+</div>
+
+<div class="container">
+
+    <!-- Metric Cards -->
+    <div class="metrics-grid">
+        <div class="metric-card">
+            <div class="metric-icon green"><i class="fas fa-tint"></i></div>
+            <div class="metric-info">
+                <h3 id="soilValue">--%</h3>
+                <p>Soil Moisture</p>
+                <button onclick="waterSoil()">💧 Water Soil</button>
+            </div>
+        </div>
+
+        <div class="metric-card">
+            <div class="metric-icon red"><i class="fas fa-temperature-high"></i></div>
+            <div class="metric-info">
+                <h3 id="tempValue">--°C</h3>
+                <p>Temperature</p>
+            </div>
+        </div>
+
+        <div class="metric-card">
+            <div class="metric-icon blue"><i class="fas fa-cloud"></i></div>
+            <div class="metric-info">
+                <h3 id="humidityValue">--%</h3>
+                <p>Humidity</p>
+            </div>
+        </div>
+
+        <div class="metric-card">
+            <div class="metric-icon orange"><i class="fas fa-cloud-rain"></i></div>
+            <div class="metric-info">
+                <h3 id="rainfallValue">--mm</h3>
+                <p>Rainfall</p>
+            </div>
+        </div>
+
+        <div class="metric-card">
+            <div class="metric-icon orange"><i class="fas fa-cogs"></i></div>
+            <div class="metric-info">
+                <h3 id="motorPrediction">--</h3>
+                <p>Motor Status</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="chart-container">
+        <canvas id="soilChart"></canvas>
+    </div>
+    <div class="chart-container">
+        <canvas id="tempHumChart"></canvas>
+    </div>
+    <div class="chart-container">
+        <canvas id="rainChart"></canvas>
+    </div>
+</div>
+
+<script>
+let soilData = [], tempData = [], humData = [], rainData = [], labels = [];
+
+const soilCtx = document.getElementById('soilChart').getContext('2d');
+const tempHumCtx = document.getElementById('tempHumChart').getContext('2d');
+const rainCtx = document.getElementById('rainChart').getContext('2d');
+
+const soilChart = new Chart(soilCtx, {
+    type: 'line',
+    data: { labels, datasets:[{label:'Soil Moisture (%)', data:soilData, borderColor:'#52b788', backgroundColor:'rgba(82,183,136,0.2)', tension:0.3, fill:true}] },
+    options:{ responsive:true, animation:false, scales:{y:{min:0,max:100}} }
+});
+
+const tempHumChart = new Chart(tempHumCtx, {
+    type: 'line',
+    data: {
+        labels,
+        datasets:[
+            {label:'Temperature (°C)', data:tempData, borderColor:'#e76f51', backgroundColor:'rgba(231,111,81,0.2)', tension:0.3, fill:true},
+            {label:'Humidity (%)', data:humData, borderColor:'#3498db', backgroundColor:'rgba(52,152,219,0.2)', tension:0.3, fill:true}
+        ]
+    },
+    options:{ responsive:true, animation:false, scales:{y:{min:0,max:100}} }
+});
+
+const rainChart = new Chart(rainCtx, {
+    type: 'line',
+    data: { labels, datasets:[{label:'Rainfall (mm)', data:rainData, borderColor:'#f4a261', backgroundColor:'rgba(244,162,97,0.2)', tension:0.3, fill:true}] },
+    options:{ responsive:true, animation:false, scales:{y:{min:0,max:100}} }
+});
+
+async function fetchMetrics() {
+    try {
+        const soilResp = await fetch("/api/soil");
+        const soilJson = await soilResp.json();
+        document.getElementById("soilValue").innerText = soilJson.soil_moisture + "%";
+
+        const metricsResp = await fetch("/api/metrics");
+        const metrics = await metricsResp.json();
+        document.getElementById("tempValue").innerText = metrics.avg_temperature + "°C";
+        document.getElementById("humidityValue").innerText = metrics.humidity + "%";
+        document.getElementById("rainfallValue").innerText = metrics.rainfall + "mm";
+        document.getElementById("motorPrediction").innerText = metrics.motor_prediction;
+
+        const now = new Date().toLocaleTimeString();
+        labels.push(now); soilData.push(soilJson.soil_moisture);
+        tempData.push(metrics.avg_temperature); humData.push(metrics.humidity);
+        rainData.push(metrics.rainfall);
+
+        if(labels.length > 20){
+            labels.shift(); soilData.shift(); tempData.shift(); humData.shift(); rainData.shift();
+        }
+
+        soilChart.update(); tempHumChart.update(); rainChart.update();
+    } catch(err){ console.error(err); }
+}
+
+async function waterSoil() {
+    const button = event.target;
+    button.disabled = true;
+    button.innerText = "💧 measuring...";
+
+    try {
+        await fetch("/api/servo", { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({action:"servo_down"}) });
+        alert("💧 started seeking soil moisture");
+    } catch(err){ console.error(err); }
+    finally { setTimeout(()=>{button.disabled=false; button.innerText="💧 Water Soil";},10000);}
+}
+
+setInterval(fetchMetrics, 5000);
+fetchMetrics();
+</script>
+</body>
+</html>

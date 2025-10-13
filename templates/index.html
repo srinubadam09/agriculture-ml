@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Farm Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-green: #2d6a4f;
+            --secondary-green: #52b788;
+            --light-green: #95d5b2;
+            --cream: #f8f9fa;
+            --earth-brown: #8b6f47;
+            --text-dark: #2b2d42;
+            --text-light: #6c757d;
+            --white: #ffffff;
+            --shadow: rgba(0, 0, 0, 0.1);
+            --success: #40916c;
+            --warning: #f4a261;
+            --danger: #e76f51;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--cream);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        .navbar {
+            background: var(--white);
+            padding: 1rem 0;
+            box-shadow: 0 2px 10px var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-green);
+            text-decoration: none;
+        }
+
+        .brand i {
+            font-size: 2rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-dark);
+            font-weight: 500;
+            transition: color 0.3s;
+            position: relative;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--secondary-green);
+            transition: width 0.3s;
+        }
+
+        .nav-links a:hover::after,
+        .nav-links a.active::after {
+            width: 100%;
+        }
+
+        .nav-links a:hover {
+            color: var(--secondary-green);
+        }
+
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+            gap: 4px;
+        }
+
+        .hamburger span {
+            width: 25px;
+            height: 3px;
+            background: var(--primary-green);
+            transition: 0.3s;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, rgba(45, 106, 79, 0.9), rgba(82, 183, 136, 0.8)),
+                        url('https://images.pexels.com/photos/2132250/pexels-photo-2132250.jpeg?auto=compress&cs=tinysrgb&w=1600') center/cover;
+            color: var(--white);
+            padding: 4rem 2rem;
+            text-align: center;
+        }
+
+        .hero-content {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.95;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .stat-card {
+            background: var(--white);
+            padding: 1.5rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px var(--shadow);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+        }
+
+        .stat-icon.green {
+            background: rgba(82, 183, 136, 0.15);
+            color: var(--secondary-green);
+        }
+
+        .stat-icon.blue {
+            background: rgba(52, 152, 219, 0.15);
+            color: #3498db;
+        }
+
+        .stat-icon.orange {
+            background: rgba(244, 162, 97, 0.15);
+            color: var(--warning);
+        }
+
+        .stat-icon.red {
+            background: rgba(231, 111, 81, 0.15);
+            color: var(--danger);
+        }
+
+        .stat-info h3 {
+            font-size: 2rem;
+            color: var(--text-dark);
+            font-weight: 700;
+        }
+
+        .stat-info p {
+            color: var(--text-light);
+            font-size: 0.95rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        .section-header {
+            margin-bottom: 2rem;
+        }
+
+        .section-header h2 {
+            font-size: 2rem;
+            color: var(--text-dark);
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .section-header p {
+            color: var(--text-light);
+            font-size: 1.05rem;
+        }
+
+        .crop-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .crop-card {
+            background: var(--white);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px var(--shadow);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+
+        .crop-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 30px var(--shadow);
+        }
+
+        .crop-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .crop-content {
+            padding: 1.5rem;
+        }
+
+        .crop-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .crop-name {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .crop-stage {
+            background: var(--light-green);
+            color: var(--primary-green);
+            padding: 0.35rem 0.85rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .crop-metrics {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .metric-row:last-child {
+            border-bottom: none;
+        }
+
+        .metric-label {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .metric-label i {
+            color: var(--secondary-green);
+        }
+
+        .metric-value {
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .prediction-section {
+            background: var(--white);
+            padding: 2.5rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px var(--shadow);
+            margin-bottom: 3rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: var(--text-dark);
+            font-size: 0.95rem;
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 0.85rem;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-family: 'Inter', sans-serif;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--secondary-green);
+            box-shadow: 0 0 0 3px rgba(82, 183, 136, 0.1);
+        }
+
+        .btn {
+            padding: 1rem 2.5rem;
+            background: var(--secondary-green);
+            color: var(--white);
+            border: none;
+            border-radius: 10px;
+            font-size: 1.05rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn:hover {
+            background: var(--primary-green);
+            transform: translateY(-2px);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .alert {
+            padding: 1.25rem;
+            border-radius: 10px;
+            margin-top: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .alert-success {
+            background: rgba(64, 145, 108, 0.1);
+            border: 2px solid var(--success);
+            color: var(--success);
+        }
+
+        .alert-warning {
+            background: rgba(244, 162, 97, 0.1);
+            border: 2px solid var(--warning);
+            color: #d68a4f;
+        }
+
+        .alert i {
+            font-size: 1.5rem;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .info-card {
+            background: var(--white);
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px var(--shadow);
+            text-align: center;
+            transition: transform 0.3s;
+        }
+
+        .info-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .info-card-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1.5rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+        }
+
+        .info-card-icon.humidity {
+            background: rgba(52, 152, 219, 0.15);
+            color: #3498db;
+        }
+
+        .info-card-icon.temp {
+            background: rgba(244, 162, 97, 0.15);
+            color: var(--warning);
+        }
+
+        .info-card-icon.rain {
+            background: rgba(82, 183, 136, 0.15);
+            color: var(--secondary-green);
+        }
+
+        .info-card h3 {
+            font-size: 1.3rem;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .info-card .value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary-green);
+            margin-bottom: 0.5rem;
+        }
+
+        .info-card .label {
+            color: var(--text-light);
+            font-size: 0.95rem;
+        }
+
+        footer {
+            background: var(--primary-green);
+            color: var(--white);
+            padding: 3rem 2rem 1.5rem;
+        }
+
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-section h3 {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+        }
+
+        .footer-section p,
+        .footer-section a {
+            color: rgba(255, 255, 255, 0.85);
+            text-decoration: none;
+            display: block;
+            margin-bottom: 0.5rem;
+            transition: color 0.3s;
+        }
+
+        .footer-section a:hover {
+            color: var(--white);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 0.85);
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                position: fixed;
+                top: 80px;
+                left: -100%;
+                flex-direction: column;
+                background: var(--white);
+                width: 100%;
+                padding: 2rem;
+                box-shadow: 0 4px 10px var(--shadow);
+                transition: left 0.3s;
+            }
+
+            .nav-links.active {
+                left: 0;
+            }
+
+            .hamburger {
+                display: flex;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .hero p {
+                font-size: 1rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .crop-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="#" class="brand">
+                <i class="fas fa-leaf"></i>
+                <span>Smart Farm</span>
+            </a>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="/" class="active">Home</a></li>
+                <li><a href="/crops">Crops</a></li>
+                <li><a href="/analytics">Analytics</a></li>
+                <li><a href="/settings">Settings</a></li>
+                <li><a href="/profile"><i class="fas fa-user-circle"></i> Profile</a></li>
+            </ul>
+            <div class="hamburger" id="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Welcome to Smart Farm Dashboard</h1>
+            <p>Monitor, manage, and optimize your agricultural operations in real-time</p>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon green">
+                        <i class="fas fa-seedling"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>12</h3>
+                        <p>Active Crops</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon blue">
+                        <i class="fas fa-tint"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>85%</h3>
+                        <p>Water Status</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon orange">
+                        <i class="fas fa-mountain"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>Good</h3>
+                        <p>Soil Health</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon red">
+                        <i class="fas fa-bell"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>3</h3>
+                        <p>Active Alerts</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="container" id="crops">
+        <div class="section-header">
+            <h2>Crop Management</h2>
+            <p>Monitor and manage your crops with real-time data and insights</p>
+        </div>
+
+        <div class="crop-grid">
+            <div class="crop-card">
+                <img src="https://images.pexels.com/photos/265216/pexels-photo-265216.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Rice" class="crop-image">
+                <div class="crop-content">
+                    <div class="crop-header">
+                        <h3 class="crop-name">Rice</h3>
+                        <span class="crop-stage">Growing</span>
+                    </div>
+                    <div class="crop-metrics">
+                        <div class="metric-row">
+                            <span class="metric-label"><i class="fas fa-tint"></i> Soil Moisture</span>
+                            <span class="metric-value">75%</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label"><i class="fas fa-flask"></i> NPK Levels</span>
+                            <span class="metric-value">Good</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label"><i class="fas fa-cloud-rain"></i> Rainfall</span>
+                            <span class="metric-value">45mm</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="crop-card">
+                <img src="https://images.pexels.com/photos/4750267/pexels-photo-4750267.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Wheat" class="crop-image">
+                <div class="crop-content">
+                    <div class="crop-header">
+                        <h3 class="crop-name">Wheat</h3>
+                        <span class="crop-stage">Harvesting</span>
+                    </div>
+                    <div class="crop-metrics">
+                        <div class="metric-row">
+                            <span class="metric-label"><i class="fas fa-tint"></i> Soil Moisture</span>
+                            <span class="metric-value">62%</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label"><i class="fas fa-flask"></i> NPK Levels</span>
+                            <span class="metric-value">Optimal</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label"><i class="fas fa-cloud-rain"></i> Rainfall</span>
+                            <span class="metric-value">32mm</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="crop-card">
+                <img src="https://images.pexels.com/photos/2933243/pexels-photo-2933243.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Corn" class="crop-image">
+                <div class="crop-content">
+                    <div class="crop-header">
+                        <h3 class="crop-name">Corn</h3>
+                        <span class="crop-stage">Flowering</span>
+                    </div>
+                    <div class="crop-metrics">
+                        <div class="metric-row">
+                            <span class="metric-label"><i class="fas fa-tint"></i> Soil Moisture</span>
+                            <span class="metric-value">68%</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label"><i class="fas fa-flask"></i> NPK Levels</span>
+                            <span class="metric-value">Good</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label"><i class="fas fa-cloud-rain"></i> Rainfall</span>
+                            <span class="metric-value">38mm</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-header" id="analytics">
+            <h2>Environmental Analytics</h2>
+            <p>Real-time monitoring of environmental conditions</p>
+        </div>
+
+        <div class="info-grid">
+            <div class="info-card">
+                <div class="info-card-icon humidity">
+                    <i class="fas fa-water"></i>
+                </div>
+                <h3>Humidity</h3>
+                <div class="value">68%</div>
+                <div class="label">Current Level</div>
+            </div>
+
+            <div class="info-card">
+                <div class="info-card-icon temp">
+                    <i class="fas fa-thermometer-half"></i>
+                </div>
+                <h3>Temperature</h3>
+                <div class="value">28°C</div>
+                <div class="label">Average Today</div>
+            </div>
+
+            <div class="info-card">
+                <div class="info-card-icon rain">
+                    <i class="fas fa-cloud-rain"></i>
+                </div>
+                <h3>Rainfall</h3>
+                <div class="value">42mm</div>
+                <div class="label">This Week</div>
+            </div>
+        </div>
+
+        <div class="prediction-section">
+            <div class="section-header">
+                <h2>Motor Status Prediction</h2>
+                <p>Enter crop and environmental data to predict motor status</p>
+            </div>
+
+            <div class="alert alert-warning">
+                <i class="fas fa-info-circle"></i>
+                <div>
+                    <strong>Important:</strong> All numeric values should be percentages between 0 and 100. Enter values carefully for accurate predictions.
+                </div>
+            </div>
+
+            <form method="POST">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="crop_type"><i class="fas fa-seedling"></i> Crop Type</label>
+                        <select name="crop_type" id="crop_type" required>
+                            {% for val in options['crop_type'] %}
+                            <option value="{{ val }}">{{ val }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="crop_stage"><i class="fas fa-chart-line"></i> Crop Stage</label>
+                        <select name="crop_stage" id="crop_stage" required>
+                            {% for val in options['crop_stage'] %}
+                            <option value="{{ val }}">{{ val }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="soil_type"><i class="fas fa-mountain"></i> Soil Type</label>
+                        <select name="soil_type" id="soil_type" required>
+                            {% for val in options['soil_type'] %}
+                            <option value="{{ val }}">{{ val }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="soil_moisture"><i class="fas fa-tint"></i> Soil Moisture (%)</label>
+                        <input type="number" step="any" name="soil_moisture" id="soil_moisture" min="0" max="100" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="humidity"><i class="fas fa-water"></i> Humidity (%)</label>
+                        <input type="number" step="any" name="humidity" id="humidity" min="0" max="100" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="temperature"><i class="fas fa-thermometer-half"></i> Temperature (%)</label>
+                        <input type="number" step="any" name="temperature" id="temperature" min="0" max="100" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="Nitrogen"><i class="fas fa-flask"></i> Nitrogen (N %)</label>
+                        <input type="number" step="any" name="Nitrogen" id="Nitrogen" min="0" max="100" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="Phosphorus"><i class="fas fa-flask"></i> Phosphorus (P %)</label>
+                        <input type="number" step="any" name="Phosphorus" id="Phosphorus" min="0" max="100" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="Potassium"><i class="fas fa-flask"></i> Potassium (K %)</label>
+                        <input type="number" step="any" name="Potassium" id="Potassium" min="0" max="100" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="rainfall_mm"><i class="fas fa-cloud-rain"></i> Rainfall (mm %)</label>
+                        <input type="number" step="any" name="rainfall_mm" id="rainfall_mm" min="0" max="100" required>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                    <button type="submit" class="btn">
+                        <i class="fas fa-calculator"></i>
+                        Predict Motor Status
+                    </button>
+                    <button type="button" class="btn btn-secondary" id="clearBtn">
+                        <i class="fas fa-eraser"></i>
+                        Clear Form
+                    </button>
+                </div>
+            </form>
+
+            {% if prediction %}
+            <div class="alert alert-success">
+                <i class="fas fa-check-circle"></i>
+                <div>
+                    <strong>Predicted Motor Status:</strong> {{ prediction }}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Smart Farm</h3>
+                <p>Advanced agricultural management solutions for modern farming.</p>
+                <p>Empowering farmers with data-driven insights.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <a href="#">Home</a>
+                <a href="#crops">Crops</a>
+                <a href="#analytics">Analytics</a>
+                <a href="#settings">Settings</a>
+            </div>
+            <div class="footer-section">
+                <h3>Contact</h3>
+                <p><i class="fas fa-envelope"></i> support@smartfarm.com</p>
+                <p><i class="fas fa-phone"></i> +1 (555) 123-4567</p>
+                <p><i class="fas fa-map-marker-alt"></i> 123 Farm Street, Agriculture City</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 Smart Farm Dashboard. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        const hamburger = document.getElementById('hamburger');
+        const navLinks = document.getElementById('navLinks');
+        const clearBtn = document.getElementById('clearBtn');
+
+        hamburger.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+        });
+
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                navLinks.classList.remove('active');
+            });
+        });
+
+        clearBtn.addEventListener('click', () => {
+            document.querySelectorAll('#soil_moisture, #humidity, #temperature, #Nitrogen, #Phosphorus, #Potassium, #rainfall_mm').forEach(input => {
+                input.value = '';
+            });
+            document.getElementById('crop_type').selectedIndex = 0;
+            document.getElementById('crop_stage').selectedIndex = 0;
+            document.getElementById('soil_type').selectedIndex = 0;
+
+            const alertSuccess = document.querySelector('.alert-success');
+            if (alertSuccess) {
+                alertSuccess.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

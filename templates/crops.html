@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crops Management - Smart Farm Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-green: #2d6a4f;
+            --secondary-green: #52b788;
+            --light-green: #95d5b2;
+            --cream: #f8f9fa;
+            --text-dark: #2b2d42;
+            --text-light: #6c757d;
+            --white: #ffffff;
+            --shadow: rgba(0, 0, 0, 0.1);
+            --success: #40916c;
+            --warning: #f4a261;
+            --danger: #e76f51;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--cream);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        .navbar {
+            background: var(--white);
+            padding: 1rem 0;
+            box-shadow: 0 2px 10px var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-green);
+            text-decoration: none;
+        }
+
+        .brand i {
+            font-size: 2rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-dark);
+            font-weight: 500;
+            transition: color 0.3s;
+            position: relative;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--secondary-green);
+            transition: width 0.3s;
+        }
+
+        .nav-links a:hover::after,
+        .nav-links a.active::after {
+            width: 100%;
+        }
+
+        .nav-links a:hover {
+            color: var(--secondary-green);
+        }
+
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+            gap: 4px;
+        }
+
+        .hamburger span {
+            width: 25px;
+            height: 3px;
+            background: var(--primary-green);
+            transition: 0.3s;
+        }
+
+        .page-header {
+            background: linear-gradient(135deg, var(--primary-green), var(--secondary-green));
+            color: var(--white);
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        .page-header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-header p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .section-header h2 {
+            font-size: 1.8rem;
+            color: var(--text-dark);
+            font-weight: 700;
+        }
+
+        .btn {
+            padding: 0.85rem 1.75rem;
+            background: var(--secondary-green);
+            color: var(--white);
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            background: var(--primary-green);
+            transform: translateY(-2px);
+        }
+
+        .filter-bar {
+            background: var(--white);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px var(--shadow);
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-bar select {
+            padding: 0.75rem;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-family: 'Inter', sans-serif;
+            min-width: 150px;
+        }
+
+        .filter-bar input {
+            padding: 0.75rem;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-family: 'Inter', sans-serif;
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .crop-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 2rem;
+        }
+
+        .crop-card {
+            background: var(--white);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px var(--shadow);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .crop-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 30px var(--shadow);
+        }
+
+        .crop-image {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            position: relative;
+        }
+
+        .crop-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: var(--white);
+            padding: 0.4rem 0.9rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            box-shadow: 0 2px 8px var(--shadow);
+        }
+
+        .crop-content {
+            padding: 1.75rem;
+        }
+
+        .crop-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 1.25rem;
+        }
+
+        .crop-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 0.25rem;
+        }
+
+        .crop-variety {
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        .crop-stage {
+            background: var(--light-green);
+            color: var(--primary-green);
+            padding: 0.35rem 0.85rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .crop-stage.flowering {
+            background: rgba(244, 162, 97, 0.15);
+            color: var(--warning);
+        }
+
+        .crop-stage.harvesting {
+            background: rgba(64, 145, 108, 0.15);
+            color: var(--success);
+        }
+
+        .crop-metrics {
+            display: flex;
+            flex-direction: column;
+            gap: 0.85rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.65rem 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .metric-row:last-child {
+            border-bottom: none;
+        }
+
+        .metric-label {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .metric-label i {
+            color: var(--secondary-green);
+            width: 16px;
+        }
+
+        .metric-value {
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .metric-value.good {
+            color: var(--success);
+        }
+
+        .metric-value.warning {
+            color: var(--warning);
+        }
+
+        .crop-actions {
+            display: flex;
+            gap: 0.75rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 0.7rem;
+            border: 2px solid #e9ecef;
+            background: var(--white);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .action-btn:hover {
+            border-color: var(--secondary-green);
+            color: var(--secondary-green);
+            background: rgba(82, 183, 136, 0.05);
+        }
+
+        .stats-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-box {
+            background: var(--white);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px var(--shadow);
+            text-align: center;
+        }
+
+        .stat-box h3 {
+            font-size: 2rem;
+            color: var(--primary-green);
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-box p {
+            color: var(--text-light);
+            font-size: 0.95rem;
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                position: fixed;
+                top: 80px;
+                left: -100%;
+                flex-direction: column;
+                background: var(--white);
+                width: 100%;
+                padding: 2rem;
+                box-shadow: 0 4px 10px var(--shadow);
+                transition: left 0.3s;
+            }
+
+            .nav-links.active {
+                left: 0;
+            }
+
+            .hamburger {
+                display: flex;
+            }
+
+            .page-header h1 {
+                font-size: 2rem;
+            }
+
+            .crop-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .filter-bar {
+                flex-direction: column;
+            }
+
+            .filter-bar select,
+            .filter-bar input {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="brand">
+                <i class="fas fa-leaf"></i>
+                <span>Smart Farm</span>
+            </a>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="/">Home</a></li>
+                <li><a href="/crops" class="active">Crops</a></li>
+                <li><a href="/analytics">Analytics</a></li>
+                <li><a href="/settings">Settings</a></li>
+                <li><a href="/profile"><i class="fas fa-user-circle"></i> Profile</a></li>
+            </ul>
+            <div class="hamburger" id="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="page-header">
+        <h1>Crop Management</h1>
+        <p>Monitor and manage all your crops with real-time data and insights</p>
+    </div>
+
+    <div class="container">
+        <div class="stats-summary">
+            <div class="stat-box">
+                <h3>24</h3>
+                <p>Total Crops</p>
+            </div>
+            <div class="stat-box">
+                <h3>18</h3>
+                <p>Active Growing</p>
+            </div>
+            <div class="stat-box">
+                <h3>4</h3>
+                <p>Ready to Harvest</p>
+            </div>
+            <div class="stat-box">
+                <h3>2</h3>
+                <p>Need Attention</p>
+            </div>
+        </div>
+
+        <div class="section-header">
+            <h2>All Crops</h2>
+            <button class="btn">
+                <i class="fas fa-plus"></i>
+                Add New Crop
+            </button>
+        </div>
+
+        <div class="filter-bar">
+            <i class="fas fa-filter" style="color: var(--text-light);"></i>
+            <select>
+                <option>All Stages</option>
+                <option>Planting</option>
+                <option>Growing</option>
+                <option>Flowering</option>
+                <option>Harvesting</option>
+            </select>
+            <select>
+                <option>All Types</option>
+                <option>Rice</option>
+                <option>Wheat</option>
+                <option>Corn</option>
+                <option>Soybean</option>
+            </select>
+            <input type="text" placeholder="Search crops...">
+        </div>
+
+        <div class="crop-grid">
+            <div class="crop-card">
+                <img src="https://images.pexels.com/photos/265216/pexels-photo-265216.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Rice" class="crop-image">
+                <div class="crop-content">
+                    <div class="crop-header">
+                        <div>
+                            <h3 class="crop-name">Rice</h3>
+                            <p class="crop-variety">Basmati Variety</p>
+                        </div>
+                        <span class="crop-stage">Growing</span>
+                    </div>
+                    <div class="crop-metrics">
+                        <div class="metric-row">
+                            <span class="metric-label"><i class="fas fa-map-marker-alt"></i> Field Location</span>
+                            <span class="metric-value">Field A-12</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label"><i class="fas fa-calendar"></i> Planted Date</span>
+                            <span class="metric-value">Mar 15, 2025</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label"><i class="fas fa-tint"></i> Soil Moisture</span>
+                            <span class="metric-value good">75%</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label"><i class="fas fa-flask"></i> NPK Status</span>
+                            <span class="metric-value good">Good</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label"><i class="fas fa-ruler"></i> Area Coverage</span>
+                            <span class="metric-value">5.2 acres</span>
+                        </div>
+                    </div>
+                    <div class="crop-actions">
+                        <button class="action-btn"><i class="fas fa-eye"></i> View</button>
+                        <button class="action-btn"><i class="fas fa-edit"></i> Edit</button>
+                        <button class="action-btn"><i class="fas fa-chart-line"></i> Analytics</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="crop-card">
+                <img src="https://images.pexels.com/photos/4750267/pexels-photo-4750267.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Wheat" class="crop-image">
+                <div class="crop-content">
+                    <div class="crop-header">
+                        <div>
+                            <h3 class="crop-name">Wheat</h3>
+                            <p class="crop-variety">Spring Wheat</p>
+                        </div>
+                        <span class="crop-stage harvesting">Harvesting</span>
+                    </div>
+                    <div class="crop-metrics">
+                        <div class="metric-row">
+                            <span class="metric-label"><i class="fas fa-map-marker-alt"></i> Field Location</span>
+                            <span class="metric-value">Field B-07</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label"><i class="fas fa-calendar"></i> Planted Date</span>
+                            <span class="metric-value">Feb 10, 2025</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label"><i class="fas fa-tint"></i> Soil Moisture</span>
+                            <span class="metric-value good">62%</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label"><i class="fas fa-flask"></i> NPK Status</span>
+                            <span class="metric-value good">Optimal</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label"><i class="fas fa-ruler"></i> Area Coverage</span>
+                            <span class="metric-value">7.8 acres</span>
+                        </div>
+                    </div>
+                    <div class="crop-actions">
+                        <button class="action-btn"><i class="fas fa-eye"></i> View</button>
+                        <button class="action-btn"><i class="fas fa-edit"></i> Edit</button>
+                        <button class="action-btn"><i class="fas fa-chart-line"></i> Analytics</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="crop-card">
+                <img src="https://images.pexels.com/photos/2933243/pexels-photo-2933243.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Corn" class="crop-image">
+                <div class="crop-content">
+                    <div class="crop-header">
+                        <div>
+                            <h3 class="crop-name">Corn</h3>
+                            <p class="crop-variety">Sweet Corn</p>
+                        </div>
+                        <span class="crop-stage flowering">Flowering</span>
+                    </div>
+                    <div class="crop-metrics">
+                        <div class="metric-row">
+                            <span class="metric-label"><i class="fas fa-map-marker-alt"></i> Field Location</span>
+                            <span class="metric-value">Field C-03</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label"><i class="fas fa-calendar"></i> Planted Date</span>
+                            <span class="metric-value">Apr 05, 2025</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label"><i class="fas fa-tint"></i> Soil Moisture</span>
+                            <span class="metric-value good">68%</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label"><i class="fas fa-flask"></i> NPK Status</span>
+                            <span class="metric-value good">Good</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label"><i class="fas fa-ruler"></i> Area Coverage</span>
+                            <span class="metric-value">4.5 acres</span>
+                        </div>
+                    </div>
+                    <div class="crop-actions">
+                        <button class="action-btn"><i class="fas fa-eye"></i> View</button>
+                        <button class="action-btn"><i class="fas fa-edit"></i> Edit</button>
+                        <button class="action-btn"><i class="fas fa-chart-line"></i> Analytics</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="crop-card">
+                <img src="https://images.pexels.com/photos/5029859/pexels-photo-5029859.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Soybean" class="crop-image">
+                <div class="crop-content">
+                    <div class="crop-header">
+                        <div>
+                            <h3 class="crop-name">Soybean</h3>
+                            <p class="crop-variety">Organic Soybean</p>
+                        </div>
+                        <span class="crop-stage">Growing</span>
+                    </div>
+                    <div class="crop-metrics">
+                        <div class="metric-row">
+                            <span class="metric-label"><i class="fas fa-map-marker-alt"></i> Field Location</span>
+                            <span class="metric-value">Field D-15</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label"><i class="fas fa-calendar"></i> Planted Date</span>
+                            <span class="metric-value">Mar 28, 2025</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label"><i class="fas fa-tint"></i> Soil Moisture</span>
+                            <span class="metric-value warning">52%</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label"><i class="fas fa-flask"></i> NPK Status</span>
+                            <span class="metric-value good">Good</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label"><i class="fas fa-ruler"></i> Area Coverage</span>
+                            <span class="metric-value">6.3 acres</span>
+                        </div>
+                    </div>
+                    <div class="crop-actions">
+                        <button class="action-btn"><i class="fas fa-eye"></i> View</button>
+                        <button class="action-btn"><i class="fas fa-edit"></i> Edit</button>
+                        <button class="action-btn"><i class="fas fa-chart-line"></i> Analytics</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="crop-card">
+                <img src="https://images.pexels.com/photos/1595104/pexels-photo-1595104.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Tomato" class="crop-image">
+                <div class="crop-content">
+                    <div class="crop-header">
+                        <div>
+                            <h3 class="crop-name">Tomato</h3>
+                            <p class="crop-variety">Cherry Tomato</p>
+                        </div>
+                        <span class="crop-stage flowering">Flowering</span>
+                    </div>
+                    <div class="crop-metrics">
+                        <div class="metric-row">
+                            <span class="metric-label"><i class="fas fa-map-marker-alt"></i> Field Location</span>
+                            <span class="metric-value">Greenhouse 2</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label"><i class="fas fa-calendar"></i> Planted Date</span>
+                            <span class="metric-value">Apr 12, 2025</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label"><i class="fas fa-tint"></i> Soil Moisture</span>
+                            <span class="metric-value good">72%</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label"><i class="fas fa-flask"></i> NPK Status</span>
+                            <span class="metric-value good">Excellent</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label"><i class="fas fa-ruler"></i> Area Coverage</span>
+                            <span class="metric-value">0.8 acres</span>
+                        </div>
+                    </div>
+                    <div class="crop-actions">
+                        <button class="action-btn"><i class="fas fa-eye"></i> View</button>
+                        <button class="action-btn"><i class="fas fa-edit"></i> Edit</button>
+                        <button class="action-btn"><i class="fas fa-chart-line"></i> Analytics</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="crop-card">
+                <img src="https://images.pexels.com/photos/1459339/pexels-photo-1459339.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Potato" class="crop-image">
+                <div class="crop-content">
+                    <div class="crop-header">
+                        <div>
+                            <h3 class="crop-name">Potato</h3>
+                            <p class="crop-variety">Russet Potato</p>
+                        </div>
+                        <span class="crop-stage">Growing</span>
+                    </div>
+                    <div class="crop-metrics">
+                        <div class="metric-row">
+                            <span class="metric-label"><i class="fas fa-map-marker-alt"></i> Field Location</span>
+                            <span class="metric-value">Field E-09</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label"><i class="fas fa-calendar"></i> Planted Date</span>
+                            <span class="metric-value">Mar 20, 2025</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label"><i class="fas fa-tint"></i> Soil Moisture</span>
+                            <span class="metric-value good">70%</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label"><i class="fas fa-flask"></i> NPK Status</span>
+                            <span class="metric-value good">Good</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label"><i class="fas fa-ruler"></i> Area Coverage</span>
+                            <span class="metric-value">3.9 acres</span>
+                        </div>
+                    </div>
+                    <div class="crop-actions">
+                        <button class="action-btn"><i class="fas fa-eye"></i> View</button>
+                        <button class="action-btn"><i class="fas fa-edit"></i> Edit</button>
+                        <button class="action-btn"><i class="fas fa-chart-line"></i> Analytics</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const hamburger = document.getElementById('hamburger');
+        const navLinks = document.getElementById('navLinks');
+
+        hamburger.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+        });
+
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                navLinks.classList.remove('active');
+            });
+        });
+    </script>
+</body>
+</html>
