@@ -3,907 +3,362 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Farm Dashboard</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>Smart Krishi Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        :root {
-            --primary-green: #2d6a4f;
-            --secondary-green: #52b788;
-            --light-green: #95d5b2;
-            --cream: #f8f9fa;
-            --earth-brown: #8b6f47;
-            --text-dark: #2b2d42;
-            --text-light: #6c757d;
-            --white: #ffffff;
-            --shadow: rgba(0, 0, 0, 0.1);
-            --success: #40916c;
-            --warning: #f4a261;
-            --danger: #e76f51;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--cream);
-            color: var(--text-dark);
-            line-height: 1.6;
-        }
-
-        .navbar {
-            background: var(--white);
-            padding: 1rem 0;
-            box-shadow: 0 2px 10px var(--shadow);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-
-        .nav-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .brand {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--primary-green);
-            text-decoration: none;
-        }
-
-        .brand i {
-            font-size: 2rem;
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 2rem;
-            list-style: none;
-            align-items: center;
-        }
-
-        .nav-links a {
-            text-decoration: none;
-            color: var(--text-dark);
-            font-weight: 500;
-            transition: color 0.3s;
-            position: relative;
-        }
-
-        .nav-links a::after {
-            content: '';
-            position: absolute;
-            bottom: -5px;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: var(--secondary-green);
-            transition: width 0.3s;
-        }
-
-        .nav-links a:hover::after,
-        .nav-links a.active::after {
-            width: 100%;
-        }
-
-        .nav-links a:hover {
-            color: var(--secondary-green);
-        }
-
-        .hamburger {
-            display: none;
-            flex-direction: column;
-            cursor: pointer;
-            gap: 4px;
-        }
-
-        .hamburger span {
-            width: 25px;
-            height: 3px;
-            background: var(--primary-green);
-            transition: 0.3s;
-        }
-
-        .hero {
-            background: linear-gradient(135deg, rgba(45, 106, 79, 0.9), rgba(82, 183, 136, 0.8)),
-                        url('https://images.pexels.com/photos/2132250/pexels-photo-2132250.jpeg?auto=compress&cs=tinysrgb&w=1600') center/cover;
-            color: var(--white);
-            padding: 4rem 2rem;
-            text-align: center;
-        }
-
-        .hero-content {
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        .hero h1 {
-            font-size: 3rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
-        }
-
-        .hero p {
-            font-size: 1.2rem;
-            margin-bottom: 2rem;
-            opacity: 0.95;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-            margin-top: 2rem;
-        }
-
-        .stat-card {
-            background: var(--white);
-            padding: 1.5rem;
-            border-radius: 16px;
-            box-shadow: 0 4px 15px var(--shadow);
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px var(--shadow);
-        }
-
-        .stat-icon {
-            width: 60px;
-            height: 60px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.75rem;
-        }
-
-        .stat-icon.green {
-            background: rgba(82, 183, 136, 0.15);
-            color: var(--secondary-green);
-        }
-
-        .stat-icon.blue {
-            background: rgba(52, 152, 219, 0.15);
-            color: #3498db;
-        }
-
-        .stat-icon.orange {
-            background: rgba(244, 162, 97, 0.15);
-            color: var(--warning);
-        }
-
-        .stat-icon.red {
-            background: rgba(231, 111, 81, 0.15);
-            color: var(--danger);
-        }
-
-        .stat-info h3 {
-            font-size: 2rem;
-            color: var(--text-dark);
-            font-weight: 700;
-        }
-
-        .stat-info p {
-            color: var(--text-light);
-            font-size: 0.95rem;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 3rem 2rem;
-        }
-
-        .section-header {
-            margin-bottom: 2rem;
-        }
-
-        .section-header h2 {
-            font-size: 2rem;
-            color: var(--text-dark);
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-        }
-
-        .section-header p {
-            color: var(--text-light);
-            font-size: 1.05rem;
-        }
-
-        .crop-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 2rem;
-            margin-bottom: 3rem;
-        }
-
-        .crop-card {
-            background: var(--white);
-            border-radius: 16px;
-            overflow: hidden;
-            box-shadow: 0 4px 15px var(--shadow);
-            transition: transform 0.3s, box-shadow 0.3s;
-            cursor: pointer;
-        }
-
-        .crop-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 12px 30px var(--shadow);
-        }
-
-        .crop-image {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-        }
-
-        .crop-content {
-            padding: 1.5rem;
-        }
-
-        .crop-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-
-        .crop-name {
-            font-size: 1.4rem;
-            font-weight: 700;
-            color: var(--text-dark);
-        }
-
-        .crop-stage {
-            background: var(--light-green);
-            color: var(--primary-green);
-            padding: 0.35rem 0.85rem;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
-        }
-
-        .crop-metrics {
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-        }
-
-        .metric-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0.5rem 0;
-            border-bottom: 1px solid #e9ecef;
-        }
-
-        .metric-row:last-child {
-            border-bottom: none;
-        }
-
-        .metric-label {
-            color: var(--text-light);
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .metric-label i {
-            color: var(--secondary-green);
-        }
-
-        .metric-value {
-            font-weight: 600;
-            color: var(--text-dark);
-        }
-
-        .prediction-section {
-            background: var(--white);
-            padding: 2.5rem;
-            border-radius: 16px;
-            box-shadow: 0 4px 15px var(--shadow);
-            margin-bottom: 3rem;
-        }
-
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 1.5rem;
-            margin-top: 1.5rem;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        .form-group label {
-            font-weight: 600;
-            color: var(--text-dark);
-            font-size: 0.95rem;
-        }
-
-        .form-group input,
-        .form-group select {
-            padding: 0.85rem;
-            border: 2px solid #e9ecef;
-            border-radius: 10px;
-            font-size: 1rem;
-            font-family: 'Inter', sans-serif;
-            transition: border-color 0.3s, box-shadow 0.3s;
-        }
-
-        .form-group input:focus,
-        .form-group select:focus {
-            outline: none;
-            border-color: var(--secondary-green);
-            box-shadow: 0 0 0 3px rgba(82, 183, 136, 0.1);
-        }
-
-        .btn {
-            padding: 1rem 2.5rem;
-            background: var(--secondary-green);
-            color: var(--white);
-            border: none;
-            border-radius: 10px;
-            font-size: 1.05rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.3s, transform 0.2s;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .btn:hover {
-            background: var(--primary-green);
-            transform: translateY(-2px);
-        }
-
-        .btn:active {
-            transform: translateY(0);
-        }
-
-        .btn-secondary {
-            background: #6c757d;
-        }
-
-        .btn-secondary:hover {
-            background: #5a6268;
-        }
-
-        .alert {
-            padding: 1.25rem;
-            border-radius: 10px;
-            margin-top: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .alert-success {
-            background: rgba(64, 145, 108, 0.1);
-            border: 2px solid var(--success);
-            color: var(--success);
-        }
-
-        .alert-warning {
-            background: rgba(244, 162, 97, 0.1);
-            border: 2px solid var(--warning);
-            color: #d68a4f;
-        }
-
-        .alert i {
-            font-size: 1.5rem;
-        }
-
-        .info-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-            margin-bottom: 3rem;
-        }
-
-        .info-card {
-            background: var(--white);
-            padding: 2rem;
-            border-radius: 16px;
-            box-shadow: 0 4px 15px var(--shadow);
-            text-align: center;
-            transition: transform 0.3s;
-        }
-
-        .info-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .info-card-icon {
-            width: 80px;
-            height: 80px;
-            margin: 0 auto 1.5rem;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2.5rem;
-        }
-
-        .info-card-icon.humidity {
-            background: rgba(52, 152, 219, 0.15);
-            color: #3498db;
-        }
-
-        .info-card-icon.temp {
-            background: rgba(244, 162, 97, 0.15);
-            color: var(--warning);
-        }
-
-        .info-card-icon.rain {
-            background: rgba(82, 183, 136, 0.15);
-            color: var(--secondary-green);
-        }
-
-        .info-card h3 {
-            font-size: 1.3rem;
-            color: var(--text-dark);
-            margin-bottom: 0.5rem;
-        }
-
-        .info-card .value {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: var(--primary-green);
-            margin-bottom: 0.5rem;
-        }
-
-        .info-card .label {
-            color: var(--text-light);
-            font-size: 0.95rem;
-        }
-
-        footer {
-            background: var(--primary-green);
-            color: var(--white);
-            padding: 3rem 2rem 1.5rem;
-        }
-
-        .footer-content {
-            max-width: 1400px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 2rem;
-            margin-bottom: 2rem;
-        }
-
-        .footer-section h3 {
-            font-size: 1.3rem;
-            margin-bottom: 1rem;
-        }
-
-        .footer-section p,
-        .footer-section a {
-            color: rgba(255, 255, 255, 0.85);
-            text-decoration: none;
-            display: block;
-            margin-bottom: 0.5rem;
-            transition: color 0.3s;
-        }
-
-        .footer-section a:hover {
-            color: var(--white);
-        }
-
-        .footer-bottom {
-            text-align: center;
-            padding-top: 2rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.2);
-            color: rgba(255, 255, 255, 0.85);
-        }
-
-        @media (max-width: 768px) {
-            .nav-links {
-                position: fixed;
-                top: 80px;
-                left: -100%;
-                flex-direction: column;
-                background: var(--white);
-                width: 100%;
-                padding: 2rem;
-                box-shadow: 0 4px 10px var(--shadow);
-                transition: left 0.3s;
-            }
-
-            .nav-links.active {
-                left: 0;
-            }
-
-            .hamburger {
-                display: flex;
-            }
-
-            .hero h1 {
-                font-size: 2rem;
-            }
-
-            .hero p {
-                font-size: 1rem;
-            }
-
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .crop-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .info-grid {
-                grid-template-columns: 1fr;
-            }
-        }
+        body { font-family: 'Poppins', sans-serif; }
+        .fade-in { animation: fadeIn 0.8s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .card-hover { transition: all 0.3s ease; }
+        .card-hover:hover { transform: translateY(-5px); box-shadow: 0 20px 40px -5px rgba(0, 0, 0, 0.15); }
+        .bg-farmland { background: linear-gradient(135deg, #fef3c7 0%, #d9f99d 50%, #bef264 100%); }
+        .gradient-green { background: linear-gradient(135deg, #059669 0%, #10b981 100%); }
+        .gradient-orange { background: linear-gradient(135deg, #ea580c 0%, #f97316 100%); }
+        .gradient-blue { background: linear-gradient(135deg, #0284c7 0%, #0ea5e9 100%); }
+        .gradient-amber { background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%); }
+        .glow-green { box-shadow: 0 0 20px rgba(16, 185, 129, 0.5); }
+        .pulse-grow { animation: pulseGrow 2s ease-in-out infinite; }
+        @keyframes pulseGrow { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
     </style>
 </head>
-<body>
-    <nav class="navbar">
-        <div class="nav-container">
-            <a href="#" class="brand">
-                <i class="fas fa-leaf"></i>
-                <span>Smart Farm</span>
-            </a>
-            <ul class="nav-links" id="navLinks">
-                <li><a href="/" class="active">Home</a></li>
-                <li><a href="/crops">Crops</a></li>
-                <li><a href="/analytics">Analytics</a></li>
-                <li><a href="/settings">Settings</a></li>
-                <li><a href="/profile"><i class="fas fa-user-circle"></i> Profile</a></li>
-            </ul>
-            <div class="hamburger" id="hamburger">
-                <span></span>
-                <span></span>
-                <span></span>
+<body class="bg-farmland min-h-screen">
+    <!-- Navbar -->
+    <nav class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <div class="flex items-center gap-3">
+                    <span class="text-5xl">🌾</span>
+                    <span class="text-2xl font-bold text-green-800">Smart Krishi</span>
+                </div>
+                <div class="hidden md:flex items-center gap-8">
+                    <a href="/" class="text-green-700 font-semibold border-b-2 border-green-600 pb-1">Home</a>
+                    <a href="/crops" class="text-gray-700 hover:text-green-600 font-medium transition-colors">Crops</a>
+                    <a href="/analytics" class="text-gray-700 hover:text-green-600 font-medium transition-colors">Analytics</a>
+                    <a href="/settings" class="text-gray-700 hover:text-green-600 font-medium transition-colors">Settings</a>
+                    <a href="/profile" class="text-gray-700 hover:text-green-600 font-medium transition-colors"><i class="fas fa-user-circle text-xl"></i></a>
+                </div>
+                <button class="md:hidden text-gray-700 text-2xl"><i class="fas fa-bars"></i></button>
             </div>
         </div>
     </nav>
 
-    <section class="hero">
-        <div class="hero-content">
-            <h1>Welcome to Smart Farm Dashboard</h1>
-            <p>Monitor, manage, and optimize your agricultural operations in real-time</p>
+    <!-- Hero Section -->
+    <section class="gradient-green text-white py-16 px-4 fade-in">
+        <div class="max-w-7xl mx-auto text-center">
+            <h1 class="text-5xl md:text-6xl font-bold mb-4">Welcome to Smart Farming</h1>
+            <p class="text-xl md:text-2xl opacity-95 mb-8">Monitor, manage, and grow with real-time insights</p>
 
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-icon green">
-                        <i class="fas fa-seedling"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3>12</h3>
-                        <p>Active Crops</p>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon blue">
-                        <i class="fas fa-tint"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3>85%</h3>
-                        <p>Water Status</p>
+            <!-- Stats Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mt-12">
+                <div class="bg-white rounded-2xl shadow-xl p-6 card-hover">
+                    <div class="flex items-center gap-4">
+                        <div class="w-16 h-16 rounded-xl gradient-green flex items-center justify-center text-3xl">🌱</div>
+                        <div class="text-left">
+                            <div class="text-3xl font-bold text-gray-800">12</div>
+                            <div class="text-gray-600 font-medium">Active Crops</div>
+                        </div>
                     </div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-icon orange">
-                        <i class="fas fa-mountain"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3>Good</h3>
-                        <p>Soil Health</p>
+                <div class="bg-white rounded-2xl shadow-xl p-6 card-hover">
+                    <div class="flex items-center gap-4">
+                        <div class="w-16 h-16 rounded-xl gradient-blue flex items-center justify-center text-3xl">💧</div>
+                        <div class="text-left">
+                            <div class="text-3xl font-bold text-gray-800">85%</div>
+                            <div class="text-gray-600 font-medium">Water Status</div>
+                        </div>
                     </div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-icon red">
-                        <i class="fas fa-bell"></i>
+                <div class="bg-white rounded-2xl shadow-xl p-6 card-hover">
+                    <div class="flex items-center gap-4">
+                        <div class="w-16 h-16 rounded-xl gradient-amber flex items-center justify-center text-3xl">🌾</div>
+                        <div class="text-left">
+                            <div class="text-3xl font-bold text-gray-800">Good</div>
+                            <div class="text-gray-600 font-medium">Soil Health</div>
+                        </div>
                     </div>
-                    <div class="stat-info">
-                        <h3>3</h3>
-                        <p>Active Alerts</p>
+                </div>
+                <div class="bg-white rounded-2xl shadow-xl p-6 card-hover">
+                    <div class="flex items-center gap-4">
+                        <div class="w-16 h-16 rounded-xl gradient-orange flex items-center justify-center text-3xl">🔔</div>
+                        <div class="text-left">
+                            <div class="text-3xl font-bold text-gray-800">3</div>
+                            <div class="text-gray-600 font-medium">Alerts</div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <div class="container" id="crops">
-        <div class="section-header">
-            <h2>Crop Management</h2>
-            <p>Monitor and manage your crops with real-time data and insights</p>
-        </div>
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 py-12">
+        <!-- Crop Grid -->
+        <div class="mb-12 fade-in">
+            <h2 class="text-4xl font-bold text-gray-800 mb-2">Your Crops</h2>
+            <p class="text-gray-600 text-lg mb-8">Monitor and manage your crops with real-time data</p>
 
-        <div class="crop-grid">
-            <div class="crop-card">
-                <img src="https://images.pexels.com/photos/265216/pexels-photo-265216.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Rice" class="crop-image">
-                <div class="crop-content">
-                    <div class="crop-header">
-                        <h3 class="crop-name">Rice</h3>
-                        <span class="crop-stage">Growing</span>
-                    </div>
-                    <div class="crop-metrics">
-                        <div class="metric-row">
-                            <span class="metric-label"><i class="fas fa-tint"></i> Soil Moisture</span>
-                            <span class="metric-value">75%</span>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Rice Card -->
+                <div class="bg-white rounded-2xl shadow-lg overflow-hidden card-hover">
+                    <img src="https://images.pexels.com/photos/265216/pexels-photo-265216.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Rice" class="w-full h-56 object-cover">
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-4">
+                            <h3 class="text-2xl font-bold text-gray-800">Rice</h3>
+                            <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-semibold">Growing</span>
                         </div>
-                        <div class="metric-row">
-                            <span class="metric-label"><i class="fas fa-flask"></i> NPK Levels</span>
-                            <span class="metric-value">Good</span>
-                        </div>
-                        <div class="metric-row">
-                            <span class="metric-label"><i class="fas fa-cloud-rain"></i> Rainfall</span>
-                            <span class="metric-value">45mm</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="crop-card">
-                <img src="https://images.pexels.com/photos/4750267/pexels-photo-4750267.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Wheat" class="crop-image">
-                <div class="crop-content">
-                    <div class="crop-header">
-                        <h3 class="crop-name">Wheat</h3>
-                        <span class="crop-stage">Harvesting</span>
-                    </div>
-                    <div class="crop-metrics">
-                        <div class="metric-row">
-                            <span class="metric-label"><i class="fas fa-tint"></i> Soil Moisture</span>
-                            <span class="metric-value">62%</span>
-                        </div>
-                        <div class="metric-row">
-                            <span class="metric-label"><i class="fas fa-flask"></i> NPK Levels</span>
-                            <span class="metric-value">Optimal</span>
-                        </div>
-                        <div class="metric-row">
-                            <span class="metric-label"><i class="fas fa-cloud-rain"></i> Rainfall</span>
-                            <span class="metric-value">32mm</span>
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center border-b pb-2">
+                                <span class="text-gray-600 flex items-center gap-2"><i class="fas fa-tint text-blue-500"></i> Soil Moisture</span>
+                                <span class="font-bold text-gray-800">75%</span>
+                            </div>
+                            <div class="flex justify-between items-center border-b pb-2">
+                                <span class="text-gray-600 flex items-center gap-2"><i class="fas fa-flask text-purple-500"></i> NPK Levels</span>
+                                <span class="font-bold text-green-600">Good</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-600 flex items-center gap-2"><i class="fas fa-cloud-rain text-blue-400"></i> Rainfall</span>
+                                <span class="font-bold text-gray-800">45mm</span>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="crop-card">
-                <img src="https://images.pexels.com/photos/2933243/pexels-photo-2933243.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Corn" class="crop-image">
-                <div class="crop-content">
-                    <div class="crop-header">
-                        <h3 class="crop-name">Corn</h3>
-                        <span class="crop-stage">Flowering</span>
+                <!-- Wheat Card -->
+                <div class="bg-white rounded-2xl shadow-lg overflow-hidden card-hover">
+                    <img src="https://images.pexels.com/photos/4750267/pexels-photo-4750267.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Wheat" class="w-full h-56 object-cover">
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-4">
+                            <h3 class="text-2xl font-bold text-gray-800">Wheat</h3>
+                            <span class="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-sm font-semibold">Harvesting</span>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center border-b pb-2">
+                                <span class="text-gray-600 flex items-center gap-2"><i class="fas fa-tint text-blue-500"></i> Soil Moisture</span>
+                                <span class="font-bold text-gray-800">62%</span>
+                            </div>
+                            <div class="flex justify-between items-center border-b pb-2">
+                                <span class="text-gray-600 flex items-center gap-2"><i class="fas fa-flask text-purple-500"></i> NPK Levels</span>
+                                <span class="font-bold text-green-600">Optimal</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-600 flex items-center gap-2"><i class="fas fa-cloud-rain text-blue-400"></i> Rainfall</span>
+                                <span class="font-bold text-gray-800">32mm</span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="crop-metrics">
-                        <div class="metric-row">
-                            <span class="metric-label"><i class="fas fa-tint"></i> Soil Moisture</span>
-                            <span class="metric-value">68%</span>
+                </div>
+
+                <!-- Corn Card -->
+                <div class="bg-white rounded-2xl shadow-lg overflow-hidden card-hover">
+                    <img src="https://images.pexels.com/photos/2933243/pexels-photo-2933243.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Corn" class="w-full h-56 object-cover">
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-4">
+                            <h3 class="text-2xl font-bold text-gray-800">Corn</h3>
+                            <span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-sm font-semibold">Flowering</span>
                         </div>
-                        <div class="metric-row">
-                            <span class="metric-label"><i class="fas fa-flask"></i> NPK Levels</span>
-                            <span class="metric-value">Good</span>
-                        </div>
-                        <div class="metric-row">
-                            <span class="metric-label"><i class="fas fa-cloud-rain"></i> Rainfall</span>
-                            <span class="metric-value">38mm</span>
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center border-b pb-2">
+                                <span class="text-gray-600 flex items-center gap-2"><i class="fas fa-tint text-blue-500"></i> Soil Moisture</span>
+                                <span class="font-bold text-gray-800">68%</span>
+                            </div>
+                            <div class="flex justify-between items-center border-b pb-2">
+                                <span class="text-gray-600 flex items-center gap-2"><i class="fas fa-flask text-purple-500"></i> NPK Levels</span>
+                                <span class="font-bold text-green-600">Good</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-600 flex items-center gap-2"><i class="fas fa-cloud-rain text-blue-400"></i> Rainfall</span>
+                                <span class="font-bold text-gray-800">38mm</span>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <div class="section-header" id="analytics">
-            <h2>Environmental Analytics</h2>
-            <p>Real-time monitoring of environmental conditions</p>
-        </div>
-
-        <div class="info-grid">
-            <div class="info-card">
-                <div class="info-card-icon humidity">
-                    <i class="fas fa-water"></i>
-                </div>
-                <h3>Humidity</h3>
-                <div class="value">68%</div>
-                <div class="label">Current Level</div>
-            </div>
-
-            <div class="info-card">
-                <div class="info-card-icon temp">
-                    <i class="fas fa-thermometer-half"></i>
-                </div>
-                <h3>Temperature</h3>
-                <div class="value">28°C</div>
-                <div class="label">Average Today</div>
-            </div>
-
-            <div class="info-card">
-                <div class="info-card-icon rain">
-                    <i class="fas fa-cloud-rain"></i>
-                </div>
-                <h3>Rainfall</h3>
-                <div class="value">42mm</div>
-                <div class="label">This Week</div>
             </div>
         </div>
 
-        <div class="prediction-section">
-            <div class="section-header">
-                <h2>Motor Status Prediction</h2>
-                <p>Enter crop and environmental data to predict motor status</p>
+        <!-- Environmental Cards -->
+        <div class="mb-12 fade-in">
+            <h2 class="text-4xl font-bold text-gray-800 mb-2">Environment Status</h2>
+            <p class="text-gray-600 text-lg mb-8">Real-time monitoring of environmental conditions</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bg-gradient-to-br from-blue-400 to-blue-600 rounded-2xl shadow-xl p-8 text-white card-hover">
+                    <div class="text-6xl mb-4">💧</div>
+                    <h3 class="text-2xl font-bold mb-2">Humidity</h3>
+                    <div class="text-5xl font-bold mb-2">68%</div>
+                    <p class="text-blue-100">Current Level</p>
+                </div>
+
+                <div class="bg-gradient-to-br from-orange-400 to-red-500 rounded-2xl shadow-xl p-8 text-white card-hover">
+                    <div class="text-6xl mb-4">🌡️</div>
+                    <h3 class="text-2xl font-bold mb-2">Temperature</h3>
+                    <div class="text-5xl font-bold mb-2">28°C</div>
+                    <p class="text-orange-100">Average Today</p>
+                </div>
+
+                <div class="bg-gradient-to-br from-cyan-400 to-blue-500 rounded-2xl shadow-xl p-8 text-white card-hover">
+                    <div class="text-6xl mb-4">🌧️</div>
+                    <h3 class="text-2xl font-bold mb-2">Rainfall</h3>
+                    <div class="text-5xl font-bold mb-2">42mm</div>
+                    <p class="text-cyan-100">This Week</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Motor Prediction Section -->
+        <div class="bg-white rounded-2xl shadow-xl p-8 mb-12 fade-in">
+            <div class="mb-6">
+                <h2 class="text-3xl font-bold text-gray-800 mb-2 flex items-center gap-3">
+                    <span class="text-4xl">⚙️</span> Motor Status Prediction
+                </h2>
+                <p class="text-gray-600 text-lg">Enter crop and environmental data to predict motor status</p>
             </div>
 
-            <div class="alert alert-warning">
-                <i class="fas fa-info-circle"></i>
-                <div>
-                    <strong>Important:</strong> All numeric values should be percentages between 0 and 100. Enter values carefully for accurate predictions.
+            <div class="bg-amber-50 border-l-4 border-amber-500 p-4 mb-6 rounded-r-lg">
+                <div class="flex items-center gap-3">
+                    <i class="fas fa-info-circle text-amber-600 text-2xl"></i>
+                    <div>
+                        <p class="font-semibold text-amber-800">Important</p>
+                        <p class="text-amber-700">All numeric values should be percentages between 0 and 100. Enter values carefully for accurate predictions.</p>
+                    </div>
                 </div>
             </div>
 
             <form method="POST">
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="crop_type"><i class="fas fa-seedling"></i> Crop Type</label>
-                        <select name="crop_type" id="crop_type" required>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-2"><i class="fas fa-seedling text-green-600"></i> Crop Type</label>
+                        <select name="crop_type" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:outline-none transition-colors">
                             {% for val in options['crop_type'] %}
                             <option value="{{ val }}">{{ val }}</option>
                             {% endfor %}
                         </select>
                     </div>
 
-                    <div class="form-group">
-                        <label for="crop_stage"><i class="fas fa-chart-line"></i> Crop Stage</label>
-                        <select name="crop_stage" id="crop_stage" required>
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-2"><i class="fas fa-chart-line text-green-600"></i> Crop Stage</label>
+                        <select name="crop_stage" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:outline-none transition-colors">
                             {% for val in options['crop_stage'] %}
                             <option value="{{ val }}">{{ val }}</option>
                             {% endfor %}
                         </select>
                     </div>
 
-                    <div class="form-group">
-                        <label for="soil_type"><i class="fas fa-mountain"></i> Soil Type</label>
-                        <select name="soil_type" id="soil_type" required>
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-2"><i class="fas fa-mountain text-green-600"></i> Soil Type</label>
+                        <select name="soil_type" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:outline-none transition-colors">
                             {% for val in options['soil_type'] %}
                             <option value="{{ val }}">{{ val }}</option>
                             {% endfor %}
                         </select>
                     </div>
 
-                    <div class="form-group">
-                        <label for="soil_moisture"><i class="fas fa-tint"></i> Soil Moisture (%)</label>
-                        <input type="number" step="any" name="soil_moisture" id="soil_moisture" min="0" max="100" required>
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-2"><i class="fas fa-tint text-blue-600"></i> Soil Moisture (%)</label>
+                        <input type="number" step="any" name="soil_moisture" min="0" max="100" required class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:outline-none transition-colors">
                     </div>
 
-                    <div class="form-group">
-                        <label for="humidity"><i class="fas fa-water"></i> Humidity (%)</label>
-                        <input type="number" step="any" name="humidity" id="humidity" min="0" max="100" required>
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-2"><i class="fas fa-water text-blue-600"></i> Humidity (%)</label>
+                        <input type="number" step="any" name="humidity" min="0" max="100" required class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:outline-none transition-colors">
                     </div>
 
-                    <div class="form-group">
-                        <label for="temperature"><i class="fas fa-thermometer-half"></i> Temperature (%)</label>
-                        <input type="number" step="any" name="temperature" id="temperature" min="0" max="100" required>
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-2"><i class="fas fa-thermometer-half text-orange-600"></i> Temperature (%)</label>
+                        <input type="number" step="any" name="temperature" min="0" max="100" required class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:outline-none transition-colors">
                     </div>
 
-                    <div class="form-group">
-                        <label for="Nitrogen"><i class="fas fa-flask"></i> Nitrogen (N %)</label>
-                        <input type="number" step="any" name="Nitrogen" id="Nitrogen" min="0" max="100" required>
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-2"><i class="fas fa-flask text-purple-600"></i> Nitrogen (N %)</label>
+                        <input type="number" step="any" name="Nitrogen" min="0" max="100" required class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:outline-none transition-colors">
                     </div>
 
-                    <div class="form-group">
-                        <label for="Phosphorus"><i class="fas fa-flask"></i> Phosphorus (P %)</label>
-                        <input type="number" step="any" name="Phosphorus" id="Phosphorus" min="0" max="100" required>
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-2"><i class="fas fa-flask text-purple-600"></i> Phosphorus (P %)</label>
+                        <input type="number" step="any" name="Phosphorus" min="0" max="100" required class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:outline-none transition-colors">
                     </div>
 
-                    <div class="form-group">
-                        <label for="Potassium"><i class="fas fa-flask"></i> Potassium (K %)</label>
-                        <input type="number" step="any" name="Potassium" id="Potassium" min="0" max="100" required>
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-2"><i class="fas fa-flask text-purple-600"></i> Potassium (K %)</label>
+                        <input type="number" step="any" name="Potassium" min="0" max="100" required class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:outline-none transition-colors">
                     </div>
 
-                    <div class="form-group">
-                        <label for="rainfall_mm"><i class="fas fa-cloud-rain"></i> Rainfall (mm %)</label>
-                        <input type="number" step="any" name="rainfall_mm" id="rainfall_mm" min="0" max="100" required>
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-2"><i class="fas fa-cloud-rain text-blue-600"></i> Rainfall (mm %)</label>
+                        <input type="number" step="any" name="rainfall_mm" min="0" max="100" required class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:outline-none transition-colors">
                     </div>
                 </div>
 
-                <div style="display: flex; gap: 1rem; margin-top: 2rem;">
-                    <button type="submit" class="btn">
-                        <i class="fas fa-calculator"></i>
-                        Predict Motor Status
+                <div class="flex gap-4">
+                    <button type="submit" class="gradient-green text-white px-8 py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all flex items-center gap-2">
+                        <i class="fas fa-calculator"></i> Predict Motor Status
                     </button>
-                    <button type="button" class="btn btn-secondary" id="clearBtn">
-                        <i class="fas fa-eraser"></i>
-                        Clear Form
+                    <button type="button" onclick="document.querySelector('form').reset()" class="bg-gray-500 text-white px-8 py-4 rounded-xl font-bold text-lg shadow-lg hover:bg-gray-600 transition-all flex items-center gap-2">
+                        <i class="fas fa-eraser"></i> Clear Form
                     </button>
                 </div>
+
+                {% if prediction %}
+                <div class="mt-6 bg-green-50 border-l-4 border-green-500 p-4 rounded-r-lg glow-green">
+                    <div class="flex items-center gap-3">
+                        <i class="fas fa-check-circle text-green-600 text-3xl"></i>
+                        <div>
+                            <p class="font-bold text-green-800 text-xl">Predicted Motor Status</p>
+                            <p class="text-green-700 text-2xl font-bold">{{ prediction }}</p>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
             </form>
+        </div>
 
-            {% if prediction %}
-            <div class="alert alert-success">
-                <i class="fas fa-check-circle"></i>
+        <!-- Krishi Mitra Message -->
+        <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl shadow-xl p-8 border-l-8 border-green-600 fade-in">
+            <div class="flex items-start gap-4">
+                <span class="text-6xl pulse-grow">🌱</span>
                 <div>
-                    <strong>Predicted Motor Status:</strong> {{ prediction }}
+                    <h3 class="text-3xl font-bold text-green-800 mb-3">Krishi Mitra says...</h3>
+                    <p class="text-xl text-gray-700 leading-relaxed">
+                        Your crops are doing well! Soil moisture is at a good level. Temperature and humidity are perfect for growth. Keep monitoring and you'll have a great harvest!
+                    </p>
                 </div>
             </div>
-            {% endif %}
         </div>
     </div>
 
-    <footer>
-        <div class="footer-content">
-            <div class="footer-section">
-                <h3>Smart Farm</h3>
-                <p>Advanced agricultural management solutions for modern farming.</p>
-                <p>Empowering farmers with data-driven insights.</p>
+    <!-- Footer -->
+    <footer class="bg-green-900 text-white py-12 mt-16">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+                <div>
+                    <h3 class="text-2xl font-bold mb-4 flex items-center gap-2"><span class="text-3xl">🌾</span> Smart Krishi</h3>
+                    <p class="text-green-200">Advanced agricultural management solutions for modern farming. Empowering farmers with data-driven insights.</p>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Quick Links</h3>
+                    <div class="space-y-2">
+                        <a href="/" class="block text-green-200 hover:text-white transition-colors">Home</a>
+                        <a href="/crops" class="block text-green-200 hover:text-white transition-colors">Crops</a>
+                        <a href="/analytics" class="block text-green-200 hover:text-white transition-colors">Analytics</a>
+                        <a href="/settings" class="block text-green-200 hover:text-white transition-colors">Settings</a>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Contact</h3>
+                    <div class="space-y-2 text-green-200">
+                        <p><i class="fas fa-envelope"></i> support@smartkrishi.com</p>
+                        <p><i class="fas fa-phone"></i> +91 98765 43210</p>
+                        <p><i class="fas fa-map-marker-alt"></i> Agriculture City, India</p>
+                    </div>
+                </div>
             </div>
-            <div class="footer-section">
-                <h3>Quick Links</h3>
-                <a href="#">Home</a>
-                <a href="#crops">Crops</a>
-                <a href="#analytics">Analytics</a>
-                <a href="#settings">Settings</a>
+            <div class="border-t border-green-800 pt-6 text-center text-green-300">
+                <p>&copy; 2025 Smart Krishi Dashboard. All rights reserved.</p>
             </div>
-            <div class="footer-section">
-                <h3>Contact</h3>
-                <p><i class="fas fa-envelope"></i> support@smartfarm.com</p>
-                <p><i class="fas fa-phone"></i> +1 (555) 123-4567</p>
-                <p><i class="fas fa-map-marker-alt"></i> 123 Farm Street, Agriculture City</p>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <p>&copy; 2025 Smart Farm Dashboard. All rights reserved.</p>
         </div>
     </footer>
-
-    <script>
-        const hamburger = document.getElementById('hamburger');
-        const navLinks = document.getElementById('navLinks');
-        const clearBtn = document.getElementById('clearBtn');
-
-        hamburger.addEventListener('click', () => {
-            navLinks.classList.toggle('active');
-        });
-
-        document.querySelectorAll('.nav-links a').forEach(link => {
-            link.addEventListener('click', () => {
-                navLinks.classList.remove('active');
-            });
-        });
-
-        clearBtn.addEventListener('click', () => {
-            document.querySelectorAll('#soil_moisture, #humidity, #temperature, #Nitrogen, #Phosphorus, #Potassium, #rainfall_mm').forEach(input => {
-                input.value = '';
-            });
-            document.getElementById('crop_type').selectedIndex = 0;
-            document.getElementById('crop_stage').selectedIndex = 0;
-            document.getElementById('soil_type').selectedIndex = 0;
-
-            const alertSuccess = document.querySelector('.alert-success');
-            if (alertSuccess) {
-                alertSuccess.style.display = 'none';
-            }
-        });
-    </script>
 </body>
 </html>
