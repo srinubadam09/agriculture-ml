@@ -5,3 +5,4 @@ joblib
 lightgbm
 gunicorn
 paho-mqtt
+requests
