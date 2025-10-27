@@ -5,30 +5,49 @@ import paho.mqtt.client as mqtt
 import threading
 import requests
 import time
+import json
 
 app = Flask(__name__)
 
 # ---------------- MQTT SETUP ----------------
 BROKER = "35.154.62.193"
 PORT = 1883
-TOPIC_SOIL = "farmbot/soil"
-TOPIC_COMMAND = "farmbot/command"
-TOPIC_MOTOR = "farmbot/motor"
 
-soil_value = 0  # default
+TOPIC_SOIL = "KrishiNova/sensors/data1"
+TOPIC_WATER = "water/tank/level"
+TOPIC_MOTOR = "water/motor1/cmd"
+TOPIC_SERVO = "KrishiNova/actuators/servo"
+
+# Default sensor/actuator values
+soil_value = 0
+temperature_value = 0
+humidity_value = 0
+water_level = 0
 
 def on_connect(client, userdata, flags, rc):
     print("✅ Connected to MQTT Broker with code", rc)
     client.subscribe(TOPIC_SOIL)
+    client.subscribe(TOPIC_WATER)
 
 def on_message(client, userdata, msg):
-    global soil_value
+    global soil_value, temperature_value, humidity_value, water_level
     if msg.topic == TOPIC_SOIL:
         try:
-            soil_value = float(msg.payload.decode())
-        except:
-            soil_value = 0
-        print("🌱 Soil Moisture:", soil_value)
+            data = json.loads(msg.payload.decode())
+            soil_value = float(data.get("moisture_percent", 0))
+            temperature_value = float(data.get("temperature", 0))
+            humidity_value = float(data.get("humidity", 0))
+            print(f"🌱 Sensor Data - Moisture: {soil_value}%, Temperature: {temperature_value}°C, Humidity: {humidity_value}%")
+        except Exception as e:
+            print("⚠️ Error parsing sensor data:", e)
+            soil_value = temperature_value = humidity_value = 0
+    elif msg.topic == TOPIC_WATER:
+        try:
+            water_level = int(msg.payload.decode())
+            print(f"💧 Water Level: {water_level}%")
+        except Exception as e:
+            print("⚠️ Error parsing water level:", e)
+            water_level = 0
 
 client = mqtt.Client()
 client.on_connect = on_connect
@@ -137,24 +156,12 @@ def profile():
 
 @app.route("/api/soil", methods=["GET"])
 def get_soil():
-    return jsonify({"soil_moisture": soil_value})
-
-@app.route("/api/servo", methods=["POST"])
-def control_servo():
-    action = request.json.get("action")
-    if not action:
-        return jsonify({"message":"No action specified"}),400
-
-    def send_commands():
-        client.publish(TOPIC_COMMAND, action)
-        print(f"📡 Command sent: {action}")
-        if action == "servo_down":
-            time.sleep(30)
-            client.publish(TOPIC_COMMAND, "servo_up")
-            print("📡 Command sent: servo_up")
-
-    threading.Thread(target=send_commands).start()
-    return jsonify({"message":f"Command '{action}' sent!"})
+    return jsonify({
+        "soil_moisture": soil_value,
+        "temperature": temperature_value,
+        "humidity": humidity_value,
+        "water_level": water_level
+    })
 
 @app.route("/api/metrics", methods=["GET"])
 def get_metrics():
@@ -172,6 +179,24 @@ def get_metrics():
         "motor_prediction": motor_prediction
     }
     return jsonify(data)
+
+# ---------------- SERVO CONTROL ----------------
+@app.route("/api/servo", methods=["POST"])
+def control_servo():
+    action = request.json.get("action")
+    if not action:
+        return jsonify({"message": "No action specified"}), 400
+
+    def send_commands():
+        client.publish(TOPIC_SERVO, action)
+        print(f"📡 Servo command sent: {action}")
+        if action == "servo_down":
+            time.sleep(30)
+            client.publish(TOPIC_SERVO, "servo_up")
+            print("📡 Servo command sent: servo_up")
+
+    threading.Thread(target=send_commands).start()
+    return jsonify({"message": f"Command '{action}' sent!"})
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)

@@ -58,7 +58,8 @@ button { cursor:pointer; padding:5px 10px; border:none; border-radius:6px; color
             <div class="metric-info">
                 <h3 id="soilValue">--%</h3>
                 <p>Soil Moisture</p>
-                <button onclick="waterSoil()">💧 Water Soil</button>
+                <button id="servoBtn" onclick="controlServo()">💧 Water Soil</button>
+                <p id="servoStatus" style="font-size:0.8rem;color:#3498db;margin-top:5px;"></p>
             </div>
         </div>
 
@@ -93,6 +94,14 @@ button { cursor:pointer; padding:5px 10px; border:none; border-radius:6px; color
                 <p>Motor Status</p>
             </div>
         </div>
+
+        <div class="metric-card">
+            <div class="metric-icon blue"><i class="fas fa-tint"></i></div>
+            <div class="metric-info">
+                <h3 id="waterLevel">--%</h3>
+                <p>Water Tank Level</p>
+            </div>
+        </div>
     </div>
 
     <!-- Charts -->
@@ -108,41 +117,39 @@ button { cursor:pointer; padding:5px 10px; border:none; border-radius:6px; color
 </div>
 
 <script>
-let soilData = [], tempData = [], humData = [], rainData = [], labels = [];
+let soilData=[], tempData=[], humData=[], rainData=[], labels=[];
 
 const soilCtx = document.getElementById('soilChart').getContext('2d');
 const tempHumCtx = document.getElementById('tempHumChart').getContext('2d');
 const rainCtx = document.getElementById('rainChart').getContext('2d');
 
 const soilChart = new Chart(soilCtx, {
-    type: 'line',
-    data: { labels, datasets:[{label:'Soil Moisture (%)', data:soilData, borderColor:'#52b788', backgroundColor:'rgba(82,183,136,0.2)', tension:0.3, fill:true}] },
+    type:'line',
+    data:{ labels, datasets:[{label:'Soil Moisture (%)', data:soilData, borderColor:'#52b788', backgroundColor:'rgba(82,183,136,0.2)', tension:0.3, fill:true}] },
     options:{ responsive:true, animation:false, scales:{y:{min:0,max:100}} }
 });
 
 const tempHumChart = new Chart(tempHumCtx, {
-    type: 'line',
-    data: {
-        labels,
-        datasets:[
-            {label:'Temperature (°C)', data:tempData, borderColor:'#e76f51', backgroundColor:'rgba(231,111,81,0.2)', tension:0.3, fill:true},
-            {label:'Humidity (%)', data:humData, borderColor:'#3498db', backgroundColor:'rgba(52,152,219,0.2)', tension:0.3, fill:true}
-        ]
-    },
+    type:'line',
+    data:{ labels, datasets:[
+        {label:'Temperature (°C)', data:tempData, borderColor:'#e76f51', backgroundColor:'rgba(231,111,81,0.2)', tension:0.3, fill:true},
+        {label:'Humidity (%)', data:humData, borderColor:'#3498db', backgroundColor:'rgba(52,152,219,0.2)', tension:0.3, fill:true}
+    ] },
     options:{ responsive:true, animation:false, scales:{y:{min:0,max:100}} }
 });
 
 const rainChart = new Chart(rainCtx, {
-    type: 'line',
-    data: { labels, datasets:[{label:'Rainfall (mm)', data:rainData, borderColor:'#f4a261', backgroundColor:'rgba(244,162,97,0.2)', tension:0.3, fill:true}] },
+    type:'line',
+    data:{ labels, datasets:[{label:'Rainfall (mm)', data:rainData, borderColor:'#f4a261', backgroundColor:'rgba(244,162,97,0.2)', tension:0.3, fill:true}] },
     options:{ responsive:true, animation:false, scales:{y:{min:0,max:100}} }
 });
 
-async function fetchMetrics() {
-    try {
+async function fetchMetrics(){
+    try{
         const soilResp = await fetch("/api/soil");
         const soilJson = await soilResp.json();
         document.getElementById("soilValue").innerText = soilJson.soil_moisture + "%";
+        document.getElementById("waterLevel").innerText = soilJson.water_level + "%";
 
         const metricsResp = await fetch("/api/metrics");
         const metrics = await metricsResp.json();
@@ -161,20 +168,48 @@ async function fetchMetrics() {
         }
 
         soilChart.update(); tempHumChart.update(); rainChart.update();
-    } catch(err){ console.error(err); }
+    }catch(err){ console.error(err); }
 }
 
-async function waterSoil() {
-    const button = event.target;
-    button.disabled = true;
-    button.innerText = "💧 measuring...";
+async function controlServo() {
+    const btn = document.getElementById("servoBtn");
+    const status = document.getElementById("servoStatus");
+    btn.disabled = true;
+    status.innerText = "Servo Status: Moving down...";
 
     try {
-        await fetch("/api/servo", { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({action:"servo_down"}) });
-        alert("💧 started seeking soil moisture");
-    } catch(err){ console.error(err); }
-    finally { setTimeout(()=>{button.disabled=false; button.innerText="💧 Water Soil";},10000);}
+        // Move servo down
+        await fetch("/api/servo", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ action: "servo_down" })
+        });
+        status.innerText = "Servo Status: Activated (Down)";
+
+        // After 10 seconds, move servo up automatically
+        setTimeout(async () => {
+            status.innerText = "Servo Status: Moving up...";
+            try {
+                await fetch("/api/servo", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ action: "servo_up" })
+                });
+                status.innerText = "Servo Status: Up";
+                btn.disabled = false;
+            } catch (err) {
+                console.error(err);
+                status.innerText = "Servo Status: Error moving up";
+                btn.disabled = false;
+            }
+        }, 10000); // 10 seconds
+    } catch (err) {
+        console.error(err);
+        status.innerText = "Servo Status: Error moving down";
+        btn.disabled = false;
+    }
 }
+
 
 setInterval(fetchMetrics, 5000);
 fetchMetrics();
