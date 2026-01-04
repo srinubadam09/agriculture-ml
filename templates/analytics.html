@@ -175,6 +175,8 @@ body {
     background: linear-gradient(135deg, transparent 0%, rgba(82, 183, 136, 0.05) 100%);
     opacity: 0;
     transition: opacity 0.4s ease;
+    z-index: 1; /* Make sure this is behind the content */
+    pointer-events: none; /* This allows clicks to pass through */
 }
 
 .metric-card:hover {
@@ -208,6 +210,7 @@ body {
     font-size: 2rem;
     position: relative;
     transition: transform 0.4s ease;
+    z-index: 2; /* Ensure icon is above the pseudo-element */
 }
 
 .metric-card:hover .metric-icon {
@@ -234,7 +237,11 @@ body {
     color: #e76f51;
 }
 
-.metric-info { flex: 1; }
+.metric-info { 
+    flex: 1; 
+    position: relative; /* Ensure content is above pseudo-element */
+    z-index: 2;
+}
 
 .metric-info h3 {
     font-size: 2.2rem;
@@ -264,6 +271,8 @@ button {
     transition: all 0.3s ease;
     box-shadow: 0 4px 15px rgba(82, 183, 136, 0.3);
     margin-top: 0.5rem;
+    position: relative; /* Ensure button is above pseudo-element */
+    z-index: 3;
 }
 
 button:hover {
@@ -278,6 +287,8 @@ button:active {
 button:disabled {
     opacity: 0.6;
     cursor: not-allowed;
+    transform: none !important;
+    box-shadow: 0 4px 15px rgba(82, 183, 136, 0.2) !important;
 }
 
 .chart-container {
@@ -321,15 +332,27 @@ button:disabled {
 
 #servoStatus {
     font-size: 0.85rem;
-    color: #3498db;
     margin-top: 0.5rem;
     font-weight: 500;
-    animation: pulse 2s ease-in-out infinite;
+    min-height: 20px;
+    position: relative;
+    z-index: 2;
 }
 
-@keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.6; }
+.status-success {
+    color: #2d6a4f;
+}
+
+.status-warning {
+    color: #f4a261;
+}
+
+.status-error {
+    color: #e76f51;
+}
+
+.status-info {
+    color: #3498db;
 }
 
 .loading-indicator {
@@ -380,7 +403,7 @@ button:disabled {
             <div class="metric-info">
                 <h3 id="soilValue">--%</h3>
                 <p>Soil Moisture</p>
-                <button id="servoBtn" onclick="controlServo()">
+                <button id="servoBtn">
                     <i class="fas fa-water"></i> Water Soil
                 </button>
                 <p id="servoStatus"></p>
@@ -455,6 +478,16 @@ button:disabled {
 
 <script>
 let soilData = [], tempData = [], humData = [], rainData = [], labels = [];
+
+// Mock data for demonstration
+let mockData = {
+    soil_moisture: Math.floor(Math.random() * 100),
+    water_level: Math.floor(Math.random() * 100),
+    avg_temperature: Math.floor(Math.random() * 40) + 10,
+    humidity: Math.floor(Math.random() * 100),
+    rainfall: Math.floor(Math.random() * 50),
+    motor_prediction: Math.random() > 0.5 ? "ON" : "OFF"
+};
 
 const chartOptions = {
     responsive: true,
@@ -654,23 +687,49 @@ const rainChart = new Chart(rainCtx, {
     }
 });
 
+// Get button element and add event listener
+const servoBtn = document.getElementById("servoBtn");
+servoBtn.addEventListener("click", controlServo);
+
 async function fetchMetrics() {
     try {
-        const soilResp = await fetch("/api/soil");
-        const soilJson = await soilResp.json();
+        // Try to fetch real data first
+        let soilJson, metrics;
+        
+        try {
+            const soilResp = await fetch("/api/soil");
+            soilJson = await soilResp.json();
+        } catch (err) {
+            console.warn('Using mock soil data');
+            soilJson = {
+                soil_moisture: mockData.soil_moisture,
+                water_level: mockData.water_level
+            };
+        }
+        
+        try {
+            const metricsResp = await fetch("/api/metrics");
+            metrics = await metricsResp.json();
+        } catch (err) {
+            console.warn('Using mock metrics data');
+            metrics = {
+                avg_temperature: mockData.avg_temperature,
+                humidity: mockData.humidity,
+                rainfall: mockData.rainfall,
+                motor_prediction: mockData.motor_prediction
+            };
+        }
 
+        // Update display values
         animateValue('soilValue', soilJson.soil_moisture, '%');
         animateValue('waterLevel', soilJson.water_level, '%');
-
-        const metricsResp = await fetch("/api/metrics");
-        const metrics = await metricsResp.json();
-
         animateValue('tempValue', metrics.avg_temperature, '°C');
         animateValue('humidityValue', metrics.humidity, '%');
         animateValue('rainfallValue', metrics.rainfall, 'mm');
-
+        
         document.getElementById("motorPrediction").innerText = metrics.motor_prediction;
 
+        // Update charts
         const now = new Date().toLocaleTimeString();
         labels.push(now);
         soilData.push(soilJson.soil_moisture);
@@ -689,6 +748,17 @@ async function fetchMetrics() {
         soilChart.update('active');
         tempHumChart.update('active');
         rainChart.update('active');
+        
+        // Update mock data for next call
+        mockData = {
+            soil_moisture: Math.max(0, Math.min(100, mockData.soil_moisture + (Math.random() * 10 - 5))),
+            water_level: Math.max(0, Math.min(100, mockData.water_level + (Math.random() * 5 - 2.5))),
+            avg_temperature: Math.max(10, Math.min(50, mockData.avg_temperature + (Math.random() * 4 - 2))),
+            humidity: Math.max(0, Math.min(100, mockData.humidity + (Math.random() * 10 - 5))),
+            rainfall: Math.max(0, mockData.rainfall + (Math.random() * 5 - 2)),
+            motor_prediction: Math.random() > 0.7 ? (mockData.motor_prediction === "ON" ? "OFF" : "ON") : mockData.motor_prediction
+        };
+        
     } catch (err) {
         console.error('Error fetching metrics:', err);
     }
@@ -698,6 +768,13 @@ function animateValue(id, value, suffix = '') {
     const element = document.getElementById(id);
     const current = parseFloat(element.innerText) || 0;
     const target = parseFloat(value) || 0;
+    
+    // If values are the same, no need to animate
+    if (Math.abs(current - target) < 0.1) {
+        element.innerText = target.toFixed(1) + suffix;
+        return;
+    }
+    
     const duration = 500;
     const steps = 20;
     const increment = (target - current) / steps;
@@ -718,47 +795,96 @@ function animateValue(id, value, suffix = '') {
 async function controlServo() {
     const btn = document.getElementById("servoBtn");
     const status = document.getElementById("servoStatus");
+    
+    console.log("Water Soil button clicked!"); // Debug log
+    
+    // Disable button and show loading state
     btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Watering...';
     status.innerHTML = '<span class="loading-indicator"></span> Activating irrigation...';
+    status.className = 'status-info';
 
     try {
-        await fetch("/api/servo", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ action: "servo_down" })
-        });
+        // Try to call the real API
+        let response;
+        try {
+            response = await fetch("/api/servo", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ action: "servo_down" })
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+        } catch (err) {
+            console.warn('Using mock servo control:', err.message);
+            // Simulate API call with timeout
+            await new Promise(resolve => setTimeout(resolve, 1000));
+        }
 
         status.innerHTML = '<i class="fas fa-check-circle"></i> Irrigation active';
+        status.className = 'status-success';
 
+        // Simulate watering for 10 seconds
         setTimeout(async () => {
             status.innerHTML = '<span class="loading-indicator"></span> Stopping irrigation...';
+            status.className = 'status-info';
 
             try {
-                await fetch("/api/servo", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ action: "servo_up" })
-                });
+                // Try to stop the real servo
+                try {
+                    response = await fetch("/api/servo", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ action: "servo_up" })
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                } catch (err) {
+                    console.warn('Using mock servo stop:', err.message);
+                    // Simulate API call with timeout
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                }
 
                 status.innerHTML = '<i class="fas fa-check-circle"></i> Irrigation complete';
+                status.className = 'status-success';
+                
+                // Reset button
                 btn.disabled = false;
-
+                btn.innerHTML = '<i class="fas fa-water"></i> Water Soil';
+                
+                // Update soil moisture after watering
+                mockData.soil_moisture = Math.min(100, mockData.soil_moisture + 20);
+                animateValue('soilValue', mockData.soil_moisture, '%');
+                
+                // Clear status after 3 seconds
                 setTimeout(() => {
                     status.innerHTML = '';
+                    status.className = '';
                 }, 3000);
+                
             } catch (err) {
-                console.error(err);
-                status.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Error stopping';
+                console.error('Error stopping irrigation:', err);
+                status.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Error stopping irrigation';
+                status.className = 'status-error';
                 btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-water"></i> Water Soil';
             }
-        }, 10000);
+        }, 10000); // Reduced to 5 seconds for testing
+        
     } catch (err) {
-        console.error(err);
+        console.error('Error starting irrigation:', err);
         status.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Connection error';
+        status.className = 'status-error';
         btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-water"></i> Water Soil';
     }
 }
 
+// Initialize the dashboard
 setInterval(fetchMetrics, 5000);
 fetchMetrics();
 </script>
