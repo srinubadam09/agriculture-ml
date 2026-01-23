@@ -15,7 +15,7 @@ PORT = 1883
 
 TOPIC_SOIL = "KrishiNova/sensors/data1"
 TOPIC_WATER = "water/tank/level"
-TOPIC_MOTOR = "water/motor/cmd"
+TOPIC_MOTOR = "water/motor1/cmd"
 TOPIC_SERVO = "KrishiNova/actuators/servo"
 
 # Default sensor/actuator values
